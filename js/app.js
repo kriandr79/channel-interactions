@@ -50,6 +50,7 @@ const App = {
     });
 
     UI.renderInteractions(Storage.getByChannel(this.currentChannel.id));
+    UI.updateChannelBadge(this.currentChannel.id);
     UI.closeModal();
     UI.showToast('Взаимодействие сохранено');
     this.renderRecentInteractions();
@@ -59,6 +60,7 @@ const App = {
     Storage.delete(id);
     if (this.currentChannel) {
       UI.renderInteractions(Storage.getByChannel(this.currentChannel.id));
+      UI.updateChannelBadge(this.currentChannel.id);
     }
     this.renderRecentInteractions();
     UI.showToast('Удалено');
