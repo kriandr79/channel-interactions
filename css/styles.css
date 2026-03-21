@@ -453,6 +453,20 @@ body {
 .priority-high   { background: var(--orange); }
 .priority-critical { background: var(--red); }
 
+.btn-edit {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+.btn-edit:hover {
+  color: var(--accent);
+  background: var(--accent-light);
+}
 .btn-delete {
   background: none;
   border: none;

@@ -56,6 +56,22 @@ const App = {
     this.renderRecentInteractions();
   },
 
+  editInteraction(id) {
+    const interaction = Storage.getAll().find(i => i.id === id);
+    if (interaction) UI.openModal(interaction);
+  },
+
+  updateInteraction(id, formData) {
+    Storage.update(id, formData);
+    if (this.currentChannel) {
+      UI.renderInteractions(Storage.getByChannel(this.currentChannel.id));
+      UI.updateChannelBadge(this.currentChannel.id);
+    }
+    UI.closeModal();
+    UI.showToast('Взаимодействие обновлено');
+    this.renderRecentInteractions();
+  },
+
   deleteInteraction(id) {
     Storage.delete(id);
     if (this.currentChannel) {
