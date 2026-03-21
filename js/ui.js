@@ -17,8 +17,21 @@ const PRIORITIES = [
 
 const UI = {
   init() {
+    this.populateSelects();
     this.bindSearch();
     this.bindModal();
+  },
+
+  populateSelects() {
+    const typeSelect = document.getElementById('field-type');
+    typeSelect.innerHTML = INTERACTION_TYPES
+      .map(t => `<option value="${t.value}">${t.icon} ${t.label}</option>`)
+      .join('');
+
+    const prioritySelect = document.getElementById('field-priority');
+    prioritySelect.innerHTML = PRIORITIES
+      .map(p => `<option value="${p.value}"${p.value === 'normal' ? ' selected' : ''}>${p.label}</option>`)
+      .join('');
   },
 
   // === СПИСОК КАНАЛОВ ===
