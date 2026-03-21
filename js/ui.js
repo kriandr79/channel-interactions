@@ -55,6 +55,11 @@ const UI = {
     return count > 0 ? `<span class="badge">${count}</span>` : '';
   },
 
+  updateChannelBadge(channelId) {
+    const el = document.getElementById(`count-${channelId}`);
+    if (el) el.innerHTML = this.getInteractionBadge(channelId);
+  },
+
   // === ПОИСК ===
 
   bindSearch() {
