@@ -1,5 +1,14 @@
 // ui.js — управление интерфейсом
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 const INTERACTION_TYPES = [
   { value: "messenger", label: "Чат", icon: "💬" },
   { value: "letter", label: "Письмо", icon: "✉️" },
@@ -16,6 +25,8 @@ const PRIORITIES = [
 ];
 
 const UI = {
+  editingId: null,
+
   init() {
     this.populateSelects();
     this.bindSearch();
@@ -161,12 +172,13 @@ const UI = {
         <td class="col-type">
           <span class="type-badge type-${i.type}">${type.icon} ${type.label}</span>
         </td>
-        <td class="col-contact">${i.contact || '—'}</td>
-        <td class="col-note">${i.note || '—'}</td>
+        <td class="col-contact">${escapeHtml(i.contact) || '—'}</td>
+        <td class="col-note">${escapeHtml(i.note) || '—'}</td>
         <td class="col-priority">
           <span class="priority-dot ${priority.cls}"></span>${priority.label}
         </td>
         <td>
+          <button class="btn-edit" onclick="App.editInteraction(${i.id})" title="Редактировать">✎</button>
           <button class="btn-delete" onclick="App.deleteInteraction(${i.id})" title="Удалить">✕</button>
         </td>
       </tr>`;
@@ -212,26 +224,47 @@ const UI = {
     document.getElementById('field-date').valueAsDate = new Date();
   },
 
-  openModal() {
-    document.getElementById('modal-overlay').classList.remove('hidden');
+  openModal(interaction = null) {
+    this.editingId = interaction ? interaction.id : null;
+    document.getElementById('modal-title').textContent =
+      interaction ? 'Редактировать взаимодействие' : 'Новое взаимодействие';
+
+    document.getElementById('form-interaction').reset();
     document.getElementById('field-date').valueAsDate = new Date();
+
+    document.getElementById('modal-overlay').classList.remove('hidden');
+
+    if (interaction) {
+      document.getElementById('field-type').value     = interaction.type;
+      document.getElementById('field-date').value     = interaction.date;
+      document.getElementById('field-contact').value  = interaction.contact || '';
+      document.getElementById('field-note').value     = interaction.note || '';
+      document.getElementById('field-priority').value = interaction.priority;
+    }
+
     setTimeout(() => document.getElementById('field-contact').focus(), 50);
   },
 
   closeModal() {
+    this.editingId = null;
     document.getElementById('modal-overlay').classList.add('hidden');
     document.getElementById('form-interaction').reset();
     document.getElementById('field-date').valueAsDate = new Date();
   },
 
   submitForm() {
-    App.addInteraction({
+    const formData = {
       type:     document.getElementById('field-type').value,
       date:     document.getElementById('field-date').value,
       contact:  document.getElementById('field-contact').value.trim(),
       note:     document.getElementById('field-note').value.trim(),
       priority: document.getElementById('field-priority').value
-    });
+    };
+    if (this.editingId) {
+      App.updateInteraction(this.editingId, formData);
+    } else {
+      App.addInteraction(formData);
+    }
   },
 
   // === TOAST ===

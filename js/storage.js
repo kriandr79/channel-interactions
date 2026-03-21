@@ -22,6 +22,14 @@ const Storage = {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
   },
 
+  update(id, fields) {
+    const all = this.getAll();
+    const idx = all.findIndex(i => i.id === id);
+    if (idx === -1) return;
+    all[idx] = { ...all[idx], ...fields };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  },
+
   getByChannel(channelId) {
     return this.getAll().filter(i => i.channelId === channelId);
   },
