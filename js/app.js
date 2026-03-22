@@ -82,6 +82,11 @@ const App = {
     UI.showToast('Удалено');
   },
 
+  goHome() {
+    this.currentChannel = null;
+    UI.showWelcomeScreen();
+  },
+
   renderRecentInteractions() {
     UI.renderRecentInteractions(Storage.getAll().slice(0, 10));
   }
