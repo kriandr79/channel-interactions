@@ -179,7 +179,7 @@ const UI = {
           <span class="type-badge type-${i.type}">${type.icon} ${type.label}</span>
         </td>
         <td class="col-contact">${escapeHtml(i.contact) || '—'}</td>
-        <td class="col-note">${escapeHtml(i.note) || '—'}</td>
+        <td class="col-note">${i.note ? escapeHtml(i.note).replace(/\n/g, '<br>') : '—'}</td>
         <td class="col-priority">
           <span class="priority-dot ${priority.cls}"></span>${priority.label}
         </td>
