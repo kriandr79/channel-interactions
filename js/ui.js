@@ -128,6 +128,12 @@ const UI = {
     }
   },
 
+  showWelcomeScreen() {
+    document.getElementById('channel-detail').classList.add('hidden');
+    document.getElementById('welcome-screen').classList.remove('hidden');
+    document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+  },
+
   // === ТАБЛИЦА ВЗАИМОДЕЙСТВИЙ ===
 
   renderInteractions(interactions) {
