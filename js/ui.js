@@ -76,10 +76,12 @@ const UI = {
   bindSearch() {
     const searchInput = document.getElementById('search-input');
     const dropdown = document.getElementById('search-dropdown');
+    const clearBtn = document.getElementById('search-clear');
 
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.trim();
 
+      clearBtn.classList.toggle('hidden', query.length === 0);
       UI.renderChannelList(App.searchChannels(query));
 
       if (query.length >= 2) {
@@ -97,6 +99,14 @@ const UI = {
       } else {
         dropdown.classList.add('hidden');
       }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      clearBtn.classList.add('hidden');
+      dropdown.classList.add('hidden');
+      UI.renderChannelList(App.searchChannels(''));
+      searchInput.focus();
     });
 
     document.addEventListener('click', (e) => {
