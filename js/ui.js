@@ -177,18 +177,6 @@ const UI = {
       </table>`;
   },
 
-  renderNote(note) {
-    if (!note) return '—';
-    const escaped = escapeHtml(note);
-    const isLong = note.length > 300 || note.includes('\n');
-    if (!isLong) return escaped;
-    const summary = escapeHtml(note.replace(/\n.*/s, '').substring(0, 100));
-    return `<details class="note-details">
-      <summary class="note-summary">${summary}…</summary>
-      <span class="note-full">${escaped.replace(/\n/g, '<br>')}</span>
-    </details>`;
-  },
-
   renderRow(i) {
     const type = INTERACTION_TYPES.find(t => t.value === i.type) || INTERACTION_TYPES[3];
     const priority = PRIORITIES.find(p => p.value === i.priority) || PRIORITIES[1];
@@ -201,7 +189,7 @@ const UI = {
           <span class="type-badge type-${i.type}">${type.icon} ${type.label}</span>
         </td>
         <td class="col-contact">${escapeHtml(i.contact) || '—'}</td>
-        <td class="col-note">${this.renderNote(i.note)}</td>
+        <td class="col-note">${i.note ? escapeHtml(i.note).replace(/\n/g, '<br>') : '—'}</td>
         <td class="col-priority">
           <span class="priority-dot ${priority.cls}"></span>${priority.label}
         </td>
