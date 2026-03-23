@@ -435,6 +435,19 @@ body {
 .col-contact { color: var(--text-muted); font-size: 12px; }
 .col-note { max-width: 300px; color: var(--text); }
 
+.note-details { cursor: pointer; }
+.note-summary {
+  color: var(--text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+  display: block;
+}
+.note-details[open] .note-summary { white-space: normal; color: var(--text); }
+.note-full { display: block; margin-top: 4px; }
+
 .col-priority {
   white-space: nowrap;
   display: flex;
