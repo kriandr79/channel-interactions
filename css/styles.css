@@ -436,6 +436,10 @@ body {
 .col-note { max-width: 300px; color: var(--text); }
 
 .col-priority {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.col-priority-div {
   white-space: nowrap;
   display: flex;
   align-items: center;

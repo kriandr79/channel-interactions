@@ -188,10 +188,10 @@ const UI = {
         <td class="col-type">
           <span class="type-badge type-${i.type}">${type.icon} ${type.label}</span>
         </td>
-        <td class="col-contact">${escapeHtml(i.contact) || '—'}</td>
-        <td class="col-note">${i.note ? escapeHtml(i.note).replace(/\n/g, '<br>') : '—'}</td>
+        <td class="col-contact">${escapeHtml(i.contact) || "—"}</td>
+        <td class="col-note">${i.note ? escapeHtml(i.note).replace(/\n/g, "<br>") : "—"}</td>
         <td class="col-priority">
-          <span class="priority-dot ${priority.cls}"></span>${priority.label}
+          <div class="col-priority-div"><span class="priority-dot ${priority.cls}"></span>${priority.label}</div>
         </td>
         <td>
           <button class="btn-edit" onclick="App.editInteraction(${i.id})" title="Редактировать">✎</button>
