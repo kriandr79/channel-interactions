@@ -212,7 +212,7 @@ try {
     else { send_error(405, 'Method not allowed'); }
 
 } catch (PDOException $e) {
-    send_error(500, 'Database error');
+    send_error(500, 'Database error: ' . $e->getMessage());
 } catch (Exception $e) {
-    send_error(500, 'Server error');
+    send_error(500, 'Server error: ' . $e->getMessage());
 }
