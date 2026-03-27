@@ -6,9 +6,9 @@ const App = {
 
   async init() {
     await this.loadChannels();
+    await this.renderRecentInteractions(); // warms Storage._countCache before renderChannelList
     UI.init();
     UI.renderChannelList(this.channels);
-    this.renderRecentInteractions();
   },
 
   async loadChannels() {
@@ -27,59 +27,85 @@ const App = {
     return this.channels.filter(ch => ch.channelname.toLowerCase().includes(q));
   },
 
-  selectChannel(channelId) {
-    // channelId приходит как number из onclick
+  async selectChannel(channelId) {
     this.currentChannel = this.channels.find(ch => ch.id === channelId);
-    if (this.currentChannel) {
-      UI.showChannelDetail(this.currentChannel);
-      UI.renderInteractions(Storage.getByChannel(channelId));
-    }
-  },
-
-  addInteraction(formData) {
     if (!this.currentChannel) return;
-
-    Storage.save({
-      channelId:   this.currentChannel.id,
-      channelName: this.currentChannel.channelname,
-      type:        formData.type,
-      date:        formData.date,
-      contact:     formData.contact,
-      note:        formData.note,
-      priority:    formData.priority
-    });
-
-    UI.renderInteractions(Storage.getByChannel(this.currentChannel.id));
-    UI.updateChannelBadge(this.currentChannel.id);
-    UI.closeModal();
-    UI.showToast('Взаимодействие сохранено');
-    this.renderRecentInteractions();
-  },
-
-  editInteraction(id) {
-    const interaction = Storage.getAll().find(i => i.id === id);
-    if (interaction) UI.openModal(interaction);
-  },
-
-  updateInteraction(id, formData) {
-    Storage.update(id, formData);
-    if (this.currentChannel) {
-      UI.renderInteractions(Storage.getByChannel(this.currentChannel.id));
-      UI.updateChannelBadge(this.currentChannel.id);
+    try {
+      const interactions = await Storage.getByChannel(channelId);
+      UI.showChannelDetail(this.currentChannel);
+      UI.renderInteractions(interactions);
+    } catch (e) {
+      console.error('selectChannel error:', e);
+      UI.showToast('Ошибка загрузки взаимодействий');
     }
-    UI.closeModal();
-    UI.showToast('Взаимодействие обновлено');
-    this.renderRecentInteractions();
   },
 
-  deleteInteraction(id) {
-    Storage.delete(id);
-    if (this.currentChannel) {
-      UI.renderInteractions(Storage.getByChannel(this.currentChannel.id));
+  async addInteraction(formData) {
+    if (!this.currentChannel) return;
+    try {
+      await Storage.save({
+        channelId:   this.currentChannel.id,
+        channelName: this.currentChannel.channelname,
+        type:        formData.type,
+        date:        formData.date,
+        contact:     formData.contact,
+        note:        formData.note,
+        priority:    formData.priority
+      });
+      const interactions = await Storage.getByChannel(this.currentChannel.id);
+      UI.renderInteractions(interactions);
       UI.updateChannelBadge(this.currentChannel.id);
+      UI.closeModal();
+      UI.showToast('Взаимодействие сохранено');
+      this.renderRecentInteractions();
+    } catch (e) {
+      console.error('addInteraction error:', e);
+      UI.showToast('Ошибка сохранения. Попробуйте снова.');
     }
-    this.renderRecentInteractions();
-    UI.showToast('Удалено');
+  },
+
+  async editInteraction(id) {
+    try {
+      const all = await Storage.getAll();
+      const interaction = all.find(i => i.id === id);
+      if (interaction) UI.openModal(interaction);
+    } catch (e) {
+      console.error('editInteraction error:', e);
+      UI.showToast('Ошибка загрузки. Попробуйте снова.');
+    }
+  },
+
+  async updateInteraction(id, formData) {
+    try {
+      await Storage.update(id, formData);
+      if (this.currentChannel) {
+        const interactions = await Storage.getByChannel(this.currentChannel.id);
+        UI.renderInteractions(interactions);
+        UI.updateChannelBadge(this.currentChannel.id);
+      }
+      UI.closeModal();
+      UI.showToast('Взаимодействие обновлено');
+      this.renderRecentInteractions();
+    } catch (e) {
+      console.error('updateInteraction error:', e);
+      UI.showToast('Ошибка обновления. Попробуйте снова.');
+    }
+  },
+
+  async deleteInteraction(id) {
+    try {
+      await Storage.delete(id);
+      if (this.currentChannel) {
+        const interactions = await Storage.getByChannel(this.currentChannel.id);
+        UI.renderInteractions(interactions);
+        UI.updateChannelBadge(this.currentChannel.id);
+      }
+      this.renderRecentInteractions();
+      UI.showToast('Удалено');
+    } catch (e) {
+      console.error('deleteInteraction error:', e);
+      UI.showToast('Ошибка удаления. Попробуйте снова.');
+    }
   },
 
   goHome() {
@@ -87,8 +113,13 @@ const App = {
     UI.showWelcomeScreen();
   },
 
-  renderRecentInteractions() {
-    UI.renderRecentInteractions(Storage.getAll().slice(0, 10));
+  async renderRecentInteractions() {
+    try {
+      const all = await Storage.getAll();
+      UI.renderRecentInteractions(all.slice(0, 10));
+    } catch (e) {
+      console.error('renderRecentInteractions error:', e);
+    }
   }
 };
 

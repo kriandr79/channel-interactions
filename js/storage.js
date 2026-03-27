@@ -1,50 +1,67 @@
-// storage.js — управление данными в localStorage
+// storage.js — API client for PHP/MySQL backend (v2)
 
-const STORAGE_KEY = 'channel_interactions';
+const API_URL = 'api/interactions.php';
 
 const Storage = {
-  getAll() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+  // In-memory count cache { channelId: count } for synchronous badge rendering
+  _countCache: {},
+
+  _updateCache(interactions) {
+    this._countCache = {};
+    interactions.forEach(i => {
+      this._countCache[i.channelId] = (this._countCache[i.channelId] || 0) + 1;
+    });
   },
 
-  save(interaction) {
-    const all = this.getAll();
-    interaction.id = Date.now();
-    interaction.createdAt = new Date().toISOString();
-    all.unshift(interaction);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-    return interaction;
+  async getAll() {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error('getAll failed: ' + res.status);
+    const data = await res.json();
+    this._updateCache(data);
+    return data;
   },
 
-  delete(id) {
-    const all = this.getAll().filter(i => i.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  async save(interaction) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(interaction)
+    });
+    if (!res.ok) throw new Error('save failed: ' + res.status);
+    const saved = await res.json();
+    this._countCache[saved.channelId] = (this._countCache[saved.channelId] || 0) + 1;
+    return saved;
   },
 
-  update(id, fields) {
-    const all = this.getAll();
-    const idx = all.findIndex(i => i.id === id);
-    if (idx === -1) return;
-    all[idx] = { ...all[idx], ...fields };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  async delete(id) {
+    const res = await fetch(API_URL + '?id=' + id, { method: 'DELETE' });
+    if (!res.ok) throw new Error('delete failed: ' + res.status);
   },
 
-  getByChannel(channelId) {
-    return this.getAll().filter(i => i.channelId === channelId);
+  async update(id, fields) {
+    const res = await fetch(API_URL + '?id=' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fields)
+    });
+    if (!res.ok) throw new Error('update failed: ' + res.status);
+    return await res.json();
   },
 
-  export() {
-    return JSON.stringify(this.getAll(), null, 2);
+  async getByChannel(channelId) {
+    const res = await fetch(API_URL + '?channel_id=' + channelId);
+    if (!res.ok) throw new Error('getByChannel failed: ' + res.status);
+    const data = await res.json();
+    this._countCache[channelId] = data.length;
+    return data;
   },
 
-  import(jsonString) {
-    try {
-      const data = JSON.parse(jsonString);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      return true;
-    } catch (e) {
-      return false;
-    }
+  async export() {
+    const data = await this.getAll();
+    return JSON.stringify(data, null, 2);
+  },
+
+  async import(jsonString) {
+    return false; // stub — not implemented in v2
   }
 };
