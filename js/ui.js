@@ -62,7 +62,7 @@ const UI = {
   },
 
   getInteractionBadge(channelId) {
-    const count = Storage.getByChannel(channelId).length;
+    const count = Storage._countCache[channelId] || 0;
     return count > 0 ? `<span class="badge">${count}</span>` : '';
   },
 
